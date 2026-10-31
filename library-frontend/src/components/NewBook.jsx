@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useMutation } from '@apollo/client/react'
+import { CREATE_BOOKS, ALL_BOOKS, ALL_AUTHORS } from './queries'
 
 const NewBook = (props) => {
   const [title, setTitle] = useState('')
@@ -7,6 +9,11 @@ const NewBook = (props) => {
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
 
+  const [createBooks] = useMutation(CREATE_BOOKS, {
+    refetchQueries: [{query: ALL_BOOKS}, {query: ALL_AUTHORS}],
+    onError: error => setError(error.message)
+  })
+
   if (!props.show) {
     return null
   }
@@ -14,7 +21,7 @@ const NewBook = (props) => {
   const submit = async (event) => {
     event.preventDefault()
 
-    console.log('add book...')
+    createBooks({variables: {title, author, published: Number(published), genres}})
 
     setTitle('')
     setPublished('')
@@ -32,26 +39,32 @@ const NewBook = (props) => {
     <div>
       <form onSubmit={submit}>
         <div>
+          <label>
           title
-          <input
-            value={title}
-            onChange={({ target }) => setTitle(target.value)}
-          />
+            <input
+              value={title}
+              onChange={({ target }) => setTitle(target.value)}
+            />
+          </label>
         </div>
         <div>
+          <label>
           author
-          <input
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
-          />
+            <input
+              value={author}
+              onChange={({ target }) => setAuthor(target.value)}
+            />
+          </label>
         </div>
         <div>
+          <label>
           published
-          <input
-            type="number"
-            value={published}
-            onChange={({ target }) => setPublished(target.value)}
-          />
+            <input
+              type="number"
+              value={published}
+              onChange={({ target }) => setPublished(target.value)}
+            />
+          </label>
         </div>
         <div>
           <input
